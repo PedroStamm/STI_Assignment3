@@ -131,11 +131,12 @@ public class ChatServer implements Runnable {
                         }
                     remove(ID);
                 } else {
-                    // Brodcast message for every other client online
+                    // Broadcast message for every other client online
+                    Message msg = new Message();
+                    msg.setPayload(ID + ": " + input.getPayload());
+                    msg.setSignature(keyStoreUtil.signData("STI3_Server", msg.getPayload()));
+
                     for (int i = 0; i < clientCount; i++) {
-                        Message msg = new Message();
-                        msg.setPayload(ID + ": " + input.getPayload());
-                        msg.setSignature(keyStoreUtil.signData("STI3_Server", msg.getPayload()));
                         clients[i].send(msg);
                     }
                     this.msgCount++;
