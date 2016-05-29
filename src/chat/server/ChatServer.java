@@ -6,8 +6,9 @@ import chat.common.Message;
 import chat.common.MyHandshakeCompletedListener;
 
 import javax.net.ssl.*;
-import java.io.*;
-import java.net.Socket;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -153,15 +154,7 @@ public class ChatServer implements Runnable {
             } else {
                 System.out.println("Signature does not match message.");
             }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableKeyException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException | KeyStoreException | UnrecoverableKeyException | SignatureException e) {
             e.printStackTrace();
         }
     }

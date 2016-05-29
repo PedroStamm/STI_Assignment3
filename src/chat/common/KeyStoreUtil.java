@@ -42,9 +42,7 @@ public class KeyStoreUtil {
         PrivateKey priv = (PrivateKey) keyStore.getKey(alias, keyStorePass.toCharArray());
         dsa.initSign(priv);
         dsa.update(msg.getBytes());
-        byte[] realSig = dsa.sign();
-        return realSig;
-
+        return dsa.sign();
     }
 
     public boolean verifySignature(String alias, String msg, byte[] sigToVerify) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, KeyStoreException {
@@ -52,8 +50,7 @@ public class KeyStoreUtil {
         PublicKey pub = trustStore.getCertificate(alias).getPublicKey();
         sig.initVerify(pub);
         sig.update(msg.getBytes());
-        boolean res = sig.verify(sigToVerify);
-        return res;
+        return sig.verify(sigToVerify);
     }
 
     public KeyStore getKeyStore(){

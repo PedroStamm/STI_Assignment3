@@ -90,15 +90,7 @@ public class ChatClient implements Runnable {
             } catch (IOException ioexception) {
                 System.out.println("Error sending string to server: " + ioexception.getMessage());
                 stop();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (UnrecoverableKeyException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (SignatureException e) {
-                e.printStackTrace();
-            } catch (KeyStoreException e) {
+            } catch (NoSuchAlgorithmException | UnrecoverableKeyException | SignatureException | KeyStoreException | InvalidKeyException e) {
                 e.printStackTrace();
             }
         }
@@ -119,13 +111,7 @@ public class ChatClient implements Runnable {
             } else {
                 System.out.println("Signature does not match message.");
             }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException | KeyStoreException | SignatureException e) {
             e.printStackTrace();
         }
     }
@@ -203,7 +189,7 @@ class ChatClientThread extends Thread {
     public void run() {
         while (true) {
             try {
-                client.handle((Message)streamIn.readObject());
+                client.handle((Message) streamIn.readObject());
             } catch (IOException ioe) {
                 System.out.println("Listening error: " + ioe.getMessage());
                 client.stop();
