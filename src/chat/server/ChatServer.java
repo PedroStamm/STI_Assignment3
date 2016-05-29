@@ -17,8 +17,6 @@ public class ChatServer implements Runnable {
     private ChatServerThread clients[] = new ChatServerThread[20];
     private SSLServerSocket server_socket = null;
     private Thread thread = null;
-    private KeyStore serverKeys = null;
-    private KeyStore clientKeys = null;
     private KeyStoreUtil keyStoreUtil = null;
     private int clientCount = 0;
     private int msgCount = 0;
@@ -32,22 +30,10 @@ public class ChatServer implements Runnable {
             keyStoreUtil = new KeyStoreUtil("/home/pedro/keystores/serverkeystore.jck", "server_password", "/home/pedro/keystores/servertruststore.jck", "server_password");
 
             //Load Server's keys
-            /*
-            serverKeys = KeyStore.getInstance("JCEKS");
-            serverKeys.load(new FileInputStream("/home/pedro/keystores/serverkeystore.jck"),"server_password".toCharArray());
-            KeyManagerFactory serverKeyManager = KeyManagerFactory.getInstance("SunX509");
-            serverKeyManager.init(serverKeys, "server_password".toCharArray());
-            */
             KeyManagerFactory serverKeyManager = KeyManagerFactory.getInstance("SunX509");
             serverKeyManager.init(keyStoreUtil.getKeyStore(), keyStoreUtil.getKeyStorePass().toCharArray());
 
             //Load Server-trusted Client keys
-            /*
-            clientKeys = KeyStore.getInstance("JCEKS");
-            clientKeys.load(new FileInputStream("/home/pedro/keystores/servertruststore.jck"), "server_password".toCharArray());
-            TrustManagerFactory trustManager = TrustManagerFactory.getInstance("SunX509");
-            trustManager.init(clientKeys);
-            */
             TrustManagerFactory trustManager = TrustManagerFactory.getInstance("SunX509");
             trustManager.init(keyStoreUtil.getTrustStore());
 

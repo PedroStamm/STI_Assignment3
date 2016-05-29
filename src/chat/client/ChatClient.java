@@ -30,35 +30,26 @@ public class ChatClient implements Runnable {
             keyStoreUtil = new KeyStoreUtil("/home/pedro/keystores/clientkeystore.jck", "client_password", "/home/pedro/keystores/clienttruststore.jck", "client_password");
 
             //Load Client keys
-            /*
-            clientKeys = KeyStore.getInstance("JCEKS");
-            clientKeys.load(new FileInputStream("/home/pedro/keystores/clientkeystore.jck"), "client_password".toCharArray());
-            KeyManagerFactory clientKeyManager = KeyManagerFactory.getInstance("SunX509");
-            clientKeyManager.init(clientKeys, "client_password".toCharArray());
-            */
             KeyManagerFactory clientKeyManager = KeyManagerFactory.getInstance("SunX509");
             clientKeyManager.init(keyStoreUtil.getKeyStore(), keyStoreUtil.getKeyStorePass().toCharArray());
 
             //Load Client-trusted Server keys
-            /*
-            serverKeys = KeyStore.getInstance("JCEKS");
-            serverKeys.load(new FileInputStream("/home/pedro/keystores/clienttruststore.jck"), "client_password".toCharArray());
-            TrustManagerFactory trustManager=TrustManagerFactory.getInstance("SunX509");
-            trustManager.init(serverKeys);
-            */
             TrustManagerFactory trustManager=TrustManagerFactory.getInstance("SunX509");
             trustManager.init(keyStoreUtil.getTrustStore());
 
-            // Establishes connection with server (name and port)
+            //Establish SSLContext security settings
             SSLContext ssl = SSLContext.getInstance("TLS");
             ssl.init(clientKeyManager.getKeyManagers(), trustManager.getTrustManagers(), SecureRandom.getInstance("SHA1PRNG"));
+
+            //Get Socket
             socket = (SSLSocket)ssl.getSocketFactory().createSocket(serverName, serverPort);
+            //Add listener for HandshakeCompleted Event
             socket.addHandshakeCompletedListener(new MyHandshakeCompletedListener());
             socket.startHandshake();
             System.out.println("Connected to server: " + socket);
             start();
         } catch (UnknownHostException uhe) {
-            // Host unkwnown
+            // Host unknown
             System.out.println("Error establishing connection - host unknown: " + uhe.getMessage());
         } catch (IOException ioexception) {
             // Other error establishing connection
