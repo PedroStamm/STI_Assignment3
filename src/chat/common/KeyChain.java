@@ -8,17 +8,17 @@ import java.security.cert.CertificateException;
 /**
  * Created by pedro on 5/28/16.
  *
- * Based on class KeyStoreUtil from
+ * Based on class KeyChain from
  * http://www.java-redefined.com/2014/03/symmetric-asymmetric-signature.html
  */
-public class KeyStoreUtil {
+public class KeyChain {
 
     private KeyStore trustStore;
     private KeyStore keyStore;
     private String trustStorePass;
     private String keyStorePass;
 
-    public KeyStoreUtil(String keyStoreFile, String keyStorePassword, String trustStoreFile, String trustStorePassword) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    public KeyChain(String keyStoreFile, String keyStorePassword, String trustStoreFile, String trustStorePassword) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         loadKeyStore(keyStoreFile, keyStorePassword);
         loadTrustStore(trustStoreFile, trustStorePassword);
     }

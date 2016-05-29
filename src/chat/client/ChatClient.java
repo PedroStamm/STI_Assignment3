@@ -1,6 +1,6 @@
 package chat.client;
 
-import chat.common.KeyStoreUtil;
+import chat.common.KeyChain;
 import chat.common.Message;
 import chat.common.MyHandshakeCompletedListener;
 
@@ -20,22 +20,22 @@ public class ChatClient implements Runnable {
     private DataInputStream console = null;
     private ObjectOutputStream streamOut = null;
     private ChatClientThread client = null;
-    private KeyStoreUtil keyStoreUtil = null;
+    private KeyChain keyChain = null;
 
     public ChatClient(String serverName, int serverPort) {
         System.out.println("Establishing connection to server...");
 
         try {
-            //Instantiate KeyStoreUtil
-            keyStoreUtil = new KeyStoreUtil("/home/pedro/keystores/clientkeystore.jck", "client_password", "/home/pedro/keystores/clienttruststore.jck", "client_password");
+            //Instantiate KeyChain
+            keyChain = new KeyChain("/home/pedro/keystores/clientkeystore.jck", "client_password", "/home/pedro/keystores/clienttruststore.jck", "client_password");
 
             //Load Client keys
             KeyManagerFactory clientKeyManager = KeyManagerFactory.getInstance("SunX509");
-            clientKeyManager.init(keyStoreUtil.getKeyStore(), keyStoreUtil.getKeyStorePass().toCharArray());
+            clientKeyManager.init(keyChain.getKeyStore(), keyChain.getKeyStorePass().toCharArray());
 
             //Load Client-trusted Server keys
             TrustManagerFactory trustManager=TrustManagerFactory.getInstance("SunX509");
-            trustManager.init(keyStoreUtil.getTrustStore());
+            trustManager.init(keyChain.getTrustStore());
 
             //Establish SSLContext security settings
             SSLContext ssl = SSLContext.getInstance("TLS");
@@ -43,6 +43,7 @@ public class ChatClient implements Runnable {
 
             //Get Socket
             socket = (SSLSocket)ssl.getSocketFactory().createSocket(serverName, serverPort);
+            socket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"});
             //Add listener for HandshakeCompleted Event
             socket.addHandshakeCompletedListener(new MyHandshakeCompletedListener());
             socket.startHandshake();
@@ -75,7 +76,7 @@ public class ChatClient implements Runnable {
                 String str = console.readLine();
                 Message msg = new Message();
                 msg.setPayload(str);
-                msg.setSignature(keyStoreUtil.signData("STI3_Client", str));
+                msg.setSignature(keyChain.signData("STI3_Client", str));
                 streamOut.writeObject(msg);
                 streamOut.flush();
             } catch (IOException ioexception) {
@@ -91,7 +92,7 @@ public class ChatClient implements Runnable {
     public void handle(Message msg) {
         // Receives message from server
         try {
-            if(keyStoreUtil.verifySignature("STI3_Server", msg.getPayload(), msg.getSignature())) {
+            if(keyChain.verifySignature("STI3_Server", msg.getPayload(), msg.getSignature())) {
                 if (msg.getPayload().equals(".quit")) {
                     // Leaving, quit command
                     System.out.println("Exiting...Please press RETURN to exit ...");

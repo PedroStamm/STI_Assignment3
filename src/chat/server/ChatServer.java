@@ -1,7 +1,7 @@
 package chat.server;
 
 
-import chat.common.KeyStoreUtil;
+import chat.common.KeyChain;
 import chat.common.Message;
 import chat.common.MyHandshakeCompletedListener;
 
@@ -17,7 +17,7 @@ public class ChatServer implements Runnable {
     private ChatServerThread clients[] = new ChatServerThread[20];
     private SSLServerSocket server_socket = null;
     private Thread thread = null;
-    private KeyStoreUtil keyStoreUtil = null;
+    private KeyChain keyChain = null;
     private int clientCount = 0;
     private int msgCount = 0;
 
@@ -26,21 +26,22 @@ public class ChatServer implements Runnable {
             // Binds to port and starts server
             System.out.println("Binding to port " + port);
 
-            //Instantiate KeyStoreUtil
-            keyStoreUtil = new KeyStoreUtil("/home/pedro/keystores/serverkeystore.jck", "server_password", "/home/pedro/keystores/servertruststore.jck", "server_password");
+            //Instantiate KeyChain
+            keyChain = new KeyChain("/home/pedro/keystores/serverkeystore.jck", "server_password", "/home/pedro/keystores/servertruststore.jck", "server_password");
 
             //Load Server's keys
             KeyManagerFactory serverKeyManager = KeyManagerFactory.getInstance("SunX509");
-            serverKeyManager.init(keyStoreUtil.getKeyStore(), keyStoreUtil.getKeyStorePass().toCharArray());
+            serverKeyManager.init(keyChain.getKeyStore(), keyChain.getKeyStorePass().toCharArray());
 
             //Load Server-trusted Client keys
             TrustManagerFactory trustManager = TrustManagerFactory.getInstance("SunX509");
-            trustManager.init(keyStoreUtil.getTrustStore());
+            trustManager.init(keyChain.getTrustStore());
 
             //Create SSL Socket
             SSLContext ssl = SSLContext.getInstance("TLS");
             ssl.init(serverKeyManager.getKeyManagers(), trustManager.getTrustManagers(), SecureRandom.getInstance("SHA1PRNG"));
             server_socket = (SSLServerSocket)ssl.getServerSocketFactory().createServerSocket(port);
+            server_socket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"});
             server_socket.setNeedClientAuth(true);
             System.out.println("Server started: " + server_socket);
             start();
@@ -99,18 +100,18 @@ public class ChatServer implements Runnable {
 
     public synchronized void handle(int ID, Message input) {
         try {
-            if(keyStoreUtil.verifySignature("STI3_Client", input.getPayload(), input.getSignature())) {
+            if(keyChain.verifySignature("STI3_Client", input.getPayload(), input.getSignature())) {
                 if (input.getPayload().equals(".quit")) {
                     int leaving_id = findClient(ID);
                     // Client exits
                     Message msg = new Message();
                     msg.setPayload(".quit");
-                    msg.setSignature(keyStoreUtil.signData("STI3_Server", msg.getPayload()));
+                    msg.setSignature(keyChain.signData("STI3_Server", msg.getPayload()));
                     clients[leaving_id].send(msg);
                     // Notify remaing users
                     Message msg2 = new Message();
                     msg2.setPayload("Client " + ID + "exits...");
-                    msg2.setSignature(keyStoreUtil.signData("STI3_Server", msg2.getPayload()));
+                    msg2.setSignature(keyChain.signData("STI3_Server", msg2.getPayload()));
                     for (int i = 0; i < clientCount; i++)
                         if (i != leaving_id) {
                             clients[i].send(msg2);
@@ -120,7 +121,7 @@ public class ChatServer implements Runnable {
                     // Broadcast message for every other client online
                     Message msg = new Message();
                     msg.setPayload(ID + ": " + input.getPayload());
-                    msg.setSignature(keyStoreUtil.signData("STI3_Server", msg.getPayload()));
+                    msg.setSignature(keyChain.signData("STI3_Server", msg.getPayload()));
 
                     for (int i = 0; i < clientCount; i++) {
                         clients[i].send(msg);
