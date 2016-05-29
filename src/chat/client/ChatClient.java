@@ -43,7 +43,7 @@ public class ChatClient implements Runnable {
 
             //Get Socket
             socket = (SSLSocket)ssl.getSocketFactory().createSocket(serverName, serverPort);
-            socket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"});
+            socket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_128_CBC_SHA"});
             //Add listener for HandshakeCompleted Event
             socket.addHandshakeCompletedListener(new MyHandshakeCompletedListener());
             socket.startHandshake();

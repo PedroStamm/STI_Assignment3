@@ -41,7 +41,7 @@ public class ChatServer implements Runnable {
             SSLContext ssl = SSLContext.getInstance("TLS");
             ssl.init(serverKeyManager.getKeyManagers(), trustManager.getTrustManagers(), SecureRandom.getInstance("SHA1PRNG"));
             server_socket = (SSLServerSocket)ssl.getServerSocketFactory().createServerSocket(port);
-            server_socket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"});
+            server_socket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_128_CBC_SHA"});
             server_socket.setNeedClientAuth(true);
             System.out.println("Server started: " + server_socket);
             start();
