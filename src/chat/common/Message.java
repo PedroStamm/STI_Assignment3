@@ -1,15 +1,17 @@
 package chat.common;
 
+import java.io.Serializable;
+
 /**
  * Created by pedro on 5/28/16.
  */
-public class Message {
+public class Message implements Serializable {
 
     //Encrypted message payload
     private String payload=null;
 
     //Signature for payload
-    private String signature=null;
+    private byte[] signature=null;
 
     public String getPayload() {
         return payload;
@@ -19,11 +21,11 @@ public class Message {
         this.payload = payload;
     }
 
-    public String getSignature() {
+    public byte[] getSignature() {
         return signature;
     }
 
-    public void setSignature(String signature) {
+    public void setSignature(byte[] signature) {
         this.signature = signature;
     }
 }

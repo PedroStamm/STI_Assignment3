@@ -1,21 +1,15 @@
 package chat.common;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-
-import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
 /**
  * Created by pedro on 5/28/16.
+ *
+ * Based on class KeyStoreUtil from
+ * http://www.java-redefined.com/2014/03/symmetric-asymmetric-signature.html
  */
 public class KeyStoreUtil {
 
@@ -23,9 +17,6 @@ public class KeyStoreUtil {
     private KeyStore keyStore;
     private String trustStorePass;
     private String keyStorePass;
-
-    private Cipher dCipher;
-    private Cipher eCipher;
 
     public KeyStoreUtil(String keyStoreFile, String keyStorePassword, String trustStoreFile, String trustStorePassword) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         loadKeyStore(keyStoreFile, keyStorePassword);
@@ -46,6 +37,42 @@ public class KeyStoreUtil {
         this.trustStore.load(stream, this.trustStorePass.toCharArray());
     }
 
+    public byte[] signData(String alias, String msg) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, UnrecoverableKeyException, KeyStoreException {
+        Signature dsa = Signature.getInstance("MD5withRSA");
+        PrivateKey priv = (PrivateKey) keyStore.getKey(alias, keyStorePass.toCharArray());
+        dsa.initSign(priv);
+        dsa.update(msg.getBytes());
+        byte[] realSig = dsa.sign();
+        return realSig;
+
+    }
+
+    public boolean verifySignature(String alias, String msg, byte[] sigToVerify) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, KeyStoreException {
+        Signature sig = Signature.getInstance("MD5withRSA");
+        PublicKey pub = trustStore.getCertificate(alias).getPublicKey();
+        sig.initVerify(pub);
+        sig.update(msg.getBytes());
+        boolean res = sig.verify(sigToVerify);
+        return res;
+    }
+
+    public KeyStore getKeyStore(){
+        return this.keyStore;
+    }
+
+    public String getKeyStorePass(){
+        return this.keyStorePass;
+    }
+
+    public KeyStore getTrustStore(){
+        return this.trustStore;
+    }
+
+    public String getTrustStorePass(){
+        return this.trustStorePass;
+    }
+
+    /*DISCONTINUED METHODS
     public byte[] generateSessionKey(int size) throws NoSuchAlgorithmException {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(size);
@@ -68,5 +95,5 @@ public class KeyStoreUtil {
         byte[] newData = cipher.doFinal(Base64.decode(data.getBytes()));
         return new String(newData);
     }
-
+    */
 }
