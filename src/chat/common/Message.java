@@ -14,7 +14,7 @@ public class Message implements Serializable {
     private byte[] signature=null;
 
     //User identification
-    private String username=null;
+    private String alias =null;
 
     public String getPayload() {
         return payload;
@@ -32,11 +32,11 @@ public class Message implements Serializable {
         this.signature = signature;
     }
 
-    public String getUsername() {
-        return username;
+    public String getAlias() {
+        return alias;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 }

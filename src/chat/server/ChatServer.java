@@ -100,7 +100,7 @@ public class ChatServer implements Runnable {
 
     public synchronized void handle(int ID, Message input) {
         try {
-            if(keyChain.verifySignature(input.getUsername(), input.getPayload(), input.getSignature())) {
+            if(keyChain.verifySignature(input.getAlias(), input.getPayload(), input.getSignature())) {
                 if (input.getPayload().equals(".quit")) {
                     int leaving_id = findClient(ID);
                     // Client exits

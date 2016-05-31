@@ -83,7 +83,7 @@ public class ChatClient implements Runnable {
                 Message msg = new Message();
                 msg.setPayload(str);
                 msg.setSignature(keyChain.signData("STI3_Client", str));
-                msg.setUsername(username);
+                msg.setAlias(username);
                 streamOut.writeObject(msg);
                 streamOut.flush();
             } catch (IOException ioexception) {
