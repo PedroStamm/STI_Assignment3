@@ -13,6 +13,9 @@ public class Message implements Serializable {
     //Signature for payload
     private byte[] signature=null;
 
+    //User identification
+    private String username=null;
+
     public String getPayload() {
         return payload;
     }
@@ -27,5 +30,13 @@ public class Message implements Serializable {
 
     public void setSignature(byte[] signature) {
         this.signature = signature;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

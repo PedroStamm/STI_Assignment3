@@ -12,6 +12,7 @@ import java.net.*;
 import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Scanner;
 
 
 public class ChatClient implements Runnable {
@@ -21,12 +22,17 @@ public class ChatClient implements Runnable {
     private ObjectOutputStream streamOut = null;
     private ChatClientThread client = null;
     private KeyChain keyChain = null;
+    private String username = null;
 
     public ChatClient(String serverName, int serverPort) {
         System.out.println("Establishing connection to server...");
 
         try {
             //Instantiate KeyChain
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Username\n>");
+            username = sc.nextLine();
+            username = username.split("\n")[0];
             keyChain = new KeyChain("/home/pedro/keystores/clientkeystore.jck", "client_password", "/home/pedro/keystores/clienttruststore.jck", "client_password");
 
             //Load Client keys
@@ -77,6 +83,7 @@ public class ChatClient implements Runnable {
                 Message msg = new Message();
                 msg.setPayload(str);
                 msg.setSignature(keyChain.signData("STI3_Client", str));
+                msg.setUsername(username);
                 streamOut.writeObject(msg);
                 streamOut.flush();
             } catch (IOException ioexception) {
