@@ -47,10 +47,15 @@ public class KeyChain {
 
     public boolean verifySignature(String alias, String msg, byte[] sigToVerify) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, KeyStoreException {
         Signature sig = Signature.getInstance("MD5withRSA");
-        PublicKey pub = trustStore.getCertificate(alias).getPublicKey();
-        sig.initVerify(pub);
-        sig.update(msg.getBytes());
-        return sig.verify(sigToVerify);
+        try {
+            PublicKey pub = trustStore.getCertificate(alias).getPublicKey();
+            sig.initVerify(pub);
+            sig.update(msg.getBytes());
+            return sig.verify(sigToVerify);
+        } catch(NullPointerException e){
+            System.out.println("Alias nonexistent");
+            return false;
+        }
     }
 
     public KeyStore getKeyStore(){
