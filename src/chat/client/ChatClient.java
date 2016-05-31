@@ -30,7 +30,7 @@ public class ChatClient implements Runnable {
         try {
             //Instantiate KeyChain
             Scanner sc = new Scanner(System.in);
-            System.out.println("Username\n>");
+            System.out.print("Username\n>");
             username = sc.nextLine();
             username = username.split("\n")[0];
             keyChain = new KeyChain("/home/pedro/keystores/clientkeystore.jck", "client_password", "/home/pedro/keystores/clienttruststore.jck", "client_password");
